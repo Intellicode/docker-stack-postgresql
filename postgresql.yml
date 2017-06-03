@@ -1,0 +1,50 @@
+version: "3"
+services:
+  db1:
+    image: bitnami/postgresql:latest
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - awesomenet
+    deploy:
+      placement:
+        constraints: [node.hostname == node-docker-1]
+    volumes:
+      - pgdata:/bitnami/postgresql
+    env_file: .env.master
+  db2:
+    image: bitnami/postgresql:latest
+    depends_on:
+      - db1
+    ports:
+     - "127.0.0.1:5433:5432"
+    networks:
+      - awesomenet
+    deploy:
+      placement:
+        constraints: [node.hostname == node-docker-2]
+    volumes:
+      - pgdata:/bitnami/postgresql
+    env_file: .env.slave
+  db3:
+    image: bitnami/postgresql:latest
+    depends_on:
+      - db1
+    ports:
+      - "127.0.0.1:5434:5432"
+    networks:
+      - awesomenet
+    deploy:
+      placement:
+        constraints: [node.hostname == node-docker-3]
+    volumes:
+      - pgdata:/bitnami/postgresql
+    env_file: .env.slave
+volumes:
+  pgdata:
+
+networks:
+  awesomenet:
+    driver: overlay
+    driver_opts:
+      encrypted: "true"
